@@ -1,4 +1,4 @@
 "scripts": {
-  "start": "node server.js"
+  "start": "node timeleft.js"
 },
-"main": "server.js"
+"main": "timeleft.js"
