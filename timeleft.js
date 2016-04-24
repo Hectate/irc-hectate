@@ -1,23 +1,100 @@
 var ircLib = require('irc');
 var moment = require('moment');
 require('moment-precise-range-plugin');
+var fs = require('fs');
+
+var userFile = 'users.json';
+var userData = {};
 
 var endTime = new Date("April 15, 2016 20:00:00");
-var event1 = "Time until Ludum Dare 35 is";
+var event1 = "Time since Ludum Dare 35: ";
 var event2 = ".";
+var echoMode = false;
+var echoAdmin = "Hectate";
 
-var client = new ircLib.Client('irc.esper.net', 'TimeBot', {
+
+//read the data file for users listed
+fs.readFile(userFile, function (err, data) {
+	if(err) throw err;
+	userData = JSON.parse(data);
+	console.log("User data loaded.");
+});
+
+var client = new ircLib.Client('irc.esper.net', 'JinxBot', {
 	channels: ['#stencyl'],
+	floodProtection: true,
+	autoRejoin: true,
 });
 
 //client.addListener('message', function (from, to, message) {
 //	console.log(from + ' => ' + to + ': ' + message);
 //});
 
+client.addListener('quit', function(nick,reason,channel,message) {
+	if(nick == echoAdmin) {
+		echoMode = false;
+		console.log("echoMode disabled due to echoAdmin quit detected by: " + echoAdmin);
+	}
+	return;
+});
+
+//log messages said by users to users.json for the !seen command needs
+client.addListener('message', function(nick, to, message){
+	if(to == "#stencyl") {
+		var ts = moment();
+		if(!nameExists(nick)) {
+			userData.users.push(
+				{
+					"name":nick,
+					"timestamp": ts,
+				}
+			)
+		}
+		else {
+			userData.users[getName(nick)].timestamp = ts;
+		}
+	}
+});
+
 client.addListener('message', function (nick, to, text, message) {
 	var arrText = text.split(" ");
 	if (arrText[0][0]!= '!')
 		return;
+	if (arrText[0]=="!seen") {
+		if (arrText.length == 1) {
+			client.say(to, "Who are you looking for, " + nick + "?");
+			return;
+		}
+		var handle = arrText[1];
+		if(handle == nick) {
+			client.say(to, "But " + handle + ", you're right here with me!");
+			return;
+		}
+		if(!nameExists(handle)) {
+			client.say(to, "I don't remember seeing " + handle + "."	);
+			return;
+		}
+		else {
+			var diff = moment.preciseDiff(userData.users[getName(handle)].timestamp,moment());
+			client.say(to, handle + " was last seen talking " + diff + " ago.");
+			return;
+		}
+	}
+	if(arrText[0]=="!forget" && isAdmin(nick)) {
+		if(arrText.length == 1) {
+			client.say(to, "Who should I forget, " + nick + "?");
+			return;
+		}
+		if(nameExists(arrText[1])) {
+			userData.users.splice([getName(arrText[1])],1);
+			client.say(to, arrText[1] + " has been forgotten.");
+			return;
+		}
+		else {
+			client.say(to, "I can't forget something I don't remember already!");
+			return;
+		}
+	}
 	if (arrText[0]=="!time") {
 		var name = nick;
 		if(arrText.length > 1) {
@@ -51,7 +128,7 @@ client.addListener('message', function (nick, to, text, message) {
 		return;
 	}
 	if(arrText[0]=="!settime") {
-		if(nick != "Hectate") { return; }
+		if(!isAdmin(nick)) { return; }
 		else {
 		//endTime = new Date("April 15, 2016 02:00:00");
 		client.say(to, "Changing target time to: " + arrText[1] + " " + arrText[2] + " " + arrText[3] + " " + arrText[4]);
@@ -59,8 +136,12 @@ client.addListener('message', function (nick, to, text, message) {
 		return;
 		}
 	}
+	if(arrText[0]=="!endtime") {
+		client.say(to, "Current end time is set to " + endTime);
+		return;
+	}
 	if(arrText[0]=="!sethours") {
-		if(nick != "Hectate") { return; }
+		if(!isAdmin(nick)) { return; }
 		else {
 			//client.say(to, "Setting time to " + arrText[1] + " hours from now.");
 			endTime = new Date();
@@ -70,7 +151,7 @@ client.addListener('message', function (nick, to, text, message) {
 			return;
 		}
 	}
-	if(arrText[0]=="!setevent1" && nick == "Hectate") {
+	if(arrText[0]=="!setevent1" && isAdmin(nick)) {
 		event1 = "";
 		for(var i=1; i < arrText.length; i++) {
 			event1 += arrText[i];
@@ -79,8 +160,13 @@ client.addListener('message', function (nick, to, text, message) {
 		client.say(to,"Event1 description changed to " + event1);
 		return;
 	}
-	if(arrText[0]=="!setevent2" && nick == "Hectate") {
+	if(arrText[0]=="!setevent2" && isAdmin(nick)) {
 		event2 = "";
+		//this is just so we can put immediate puncuation at the end without the leading space needed for words
+		if(arrText[1]=="." || arrText[1]=="?" || arrText[1]=="!") {
+			event2 = arrText[1];
+			return;
+		}
 		for(var i=1; i < arrText.length; i++) {
 			if(i == 1) { event2 += " "; }
 			event2 += arrText[i];
@@ -89,24 +175,26 @@ client.addListener('message', function (nick, to, text, message) {
 		client.say(to,"Event2 description changed to " + event2);
 		return;
 	}
-	if(arrText[0]=="!quit" && nick == "Hectate") {
+	if(arrText[0]=="!quit" && isAdmin(nick)) {
 		client.disconnect("Goodbye",function quitIRC() {console.log("Disconnect complete, process closing...");process.exit(0); } );
 	}
 });	
 
-//The following are the "admin" commands (only recognized from the named admin in a PM).
+//The following are the "admin" commands
 client.addListener('pm', function (from, text, message) {
-    console.log(from + ' => ME: ' + message);
-	if (from != "Hectate") return;  //REPLACE THIS NICK WHEN APPROPRIATE
+    //console.log(from + ' => ME: ' + message);
+	
+	if(echoMode) {
+		if(from != echoAdmin) {
+			client.say(echoAdmin, from + " > " + text);
+		}
+	}
+	
+	if (!isAdmin(from)) return; 
+	
 	var arrText = text.split(" ");
 	if (arrText[0][0]!= '!') {
 		console.log(arrText[0] + " is not a command.");
-		return;
-	}
-	if(arrText[0]=="!set") {
-	//endTime = new Date("April 15, 2016 02:00:00");
-	//	console.log("Attempting to set time to: " + arrText[1] + " " + arrText[2] + " " + arrText[3] + " " + arrText[4]);
-		endTime = new Date(arrText[1] + " " + arrText[2] + " " + arrText[3] + " " + arrText[4]);
 		return;
 	}
 	if (arrText[0]=="!join") {
@@ -131,7 +219,31 @@ client.addListener('pm', function (from, text, message) {
 		client.part(arrText[1]);
 		return;
 	}
+	else if (arrText[0]=="!echo") {
+		if(arrText[1] == "on") {
+			echoMode = true;
+			echoAdmin = from;
+		}
+		else if (arrText[1]=="off") {
+			echoMode = false;
+			client.say(echoAdmin,"PM echo mode disabled by " + from);
+		}
+		else { client.say(from,"Please include 'on' or 'off' after the !echo command"); }
+		client.say(from,"PM echo mode: " + echoMode);
+		return;
+	}
+	else if (arrText[0]=="!say") {
+		var text = "";
+		for(var i=2; i < arrText.length; i++) {
+			text += arrText[i];
+			if(i != arrText.length-1) { text += " "; }
+		}
+		client.say(arrText[1], text);
+		return;
+	}
 	else if (arrText[0]=="!quit") {
+		console.log("Pre-quit userData save...");
+		fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
 		console.log("Quitting IRC...");
 		client.disconnect("Goodbye",function quitIRC() {console.log("Disconnect complete, process closing...");process.exit(0); } );
 	}
@@ -146,19 +258,45 @@ function getTimeLeft()
 	var now = moment();
 	var end = moment(endTime);
 	var remaining = moment(end.diff(now));
-	//var remaining = end.diff(now);
 	return remaining;
-/*
-	var remaining = new Date();
-	var currTime = new Date();
-	console.log("end: " + endTime);
-	remaining.setTime(endTime.getTime() - currTime.getTime());
-	console.log("remaining: " + remaining);
-	if(remaining.getTime <= 0)
+}
+
+//Moved all Admin-checking results to this function
+//so all commands can be easily updated to use smarter
+//admin-checking in one swoop later.	
+function isAdmin(handle)
+{
+	//obviously insecure, but it works for now
+	if(handle == "Hectate")
 	{
-		console.log("setTime to zero for negative value");
-		remaining.setTime(0);
+		return true;
 	}
-	return remaining;
-	*/
+	else return false;
+}
+
+//check for name in listed known users
+function nameExists(nick) {
+	if(userData.users.length === 0) {
+		//console.log("nameExists returned false due to 0 length");
+		return false;
+	}
+	for(var i=0; i < userData.users.length; i++) {
+		//console.log("loopcount: " + i);
+		if(userData.users[i].name === nick) {
+			//console.log(nick + " : nameExists returned true.");
+			return true;
+		}
+	}
+	//console.log("nameExists returned false due to no match.");
+	return false;
+}
+function getName(nick) {
+	for(var i=0; i < userData.users.length; i++) {
+		if(userData.users[i].name === nick) {
+			//console.log("getName found " + i);
+			return i;
+		}
+	}
+	//console.log("getName found -1");
+	return -1;
 }
