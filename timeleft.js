@@ -176,6 +176,9 @@ client.addListener('message', function (nick, to, text, message) {
 		return;
 	}
 	if(arrText[0]=="!quit" && isAdmin(nick)) {
+		console.log("Pre-quit userData save...");
+		fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
+		console.log("Quitting IRC...");
 		client.disconnect("Goodbye",function quitIRC() {console.log("Disconnect complete, process closing...");process.exit(0); } );
 	}
 });	
