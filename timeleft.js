@@ -3,11 +3,14 @@ var moment = require('moment');
 require('moment-precise-range-plugin');
 var fs = require('fs');
 
-var userFile = 'users.json';
+
+//note; on the server I use to run this, the working directly is actually below one level
+//so the file is on there run as './irc-hectate/users.json' instead. Change if local run :P
+var userFile = './irc-hectate/users.json';
 var userData = {};
 
-var endTime = new Date("April 15, 2016 20:00:00");
-var event1 = "Time since Ludum Dare 35: ";
+var endTime = new Date("May 9, 2016 21:00:00");
+var event1 = "LD35 judging ends in  ";
 var event2 = ".";
 var echoMode = false;
 var echoAdmin = "Hectate";
@@ -243,6 +246,16 @@ client.addListener('pm', function (from, text, message) {
 		}
 		client.say(arrText[1], text);
 		return;
+	}
+	else if (arrText[0]=="!identify") {
+		if (arrText.length == 1) {
+			client.say(from, "Please include the password to identify with.");
+			return;
+		}
+		else {
+			client.say("nickserv", "identify " + arrText[1]);
+			return;
+		}
 	}
 	else if (arrText[0]=="!quit") {
 		console.log("Pre-quit userData save...");
