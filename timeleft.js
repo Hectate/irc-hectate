@@ -7,6 +7,7 @@ var fs = require('fs');
 //note; on the server I use to run this, the working directly is actually below one level
 //so the file is on there run as './irc-hectate/users.json' instead. Change if local run :P
 var userFile = './irc-hectate/users.json';
+//var userFile = 'users.json';
 var userData = {};
 
 var endTime = new Date("May 9, 2016 21:00:00");
@@ -38,6 +39,12 @@ client.addListener('quit', function(nick,reason,channel,message) {
 		echoMode = false;
 		console.log("echoMode disabled due to echoAdmin quit detected by: " + echoAdmin);
 	}
+	return;
+});
+
+//logging of notices from server, etc.
+client.addListener('notice', function(nick, to, text, message) {
+	console.log("Notice: " + text);
 	return;
 });
 
