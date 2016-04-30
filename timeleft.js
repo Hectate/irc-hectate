@@ -15,6 +15,7 @@ var event1 = "LD35 judging ends in  ";
 var event2 = ".";
 var echoMode = false;
 var echoAdmin = "Hectate";
+var botName = "JinxBot";
 
 
 //read the data file for users listed
@@ -24,7 +25,7 @@ fs.readFile(userFile, function (err, data) {
 	console.log("User data loaded.");
 });
 
-var client = new ircLib.Client('irc.esper.net', 'JinxBot', {
+var client = new ircLib.Client('irc.esper.net', botName, {
 	channels: ['#stencyl'],
 	floodProtection: true,
 	autoRejoin: true,
@@ -80,6 +81,10 @@ client.addListener('message', function (nick, to, text, message) {
 			client.say(to, "But " + handle + ", you're right here with me!");
 			return;
 		}
+		if(handle == botName) {
+			client.say(to, "You're talking to me!");
+			return;
+		}
 		if(!nameExists(handle)) {
 			client.say(to, "I don't remember seeing " + handle + "."	);
 			return;
@@ -104,6 +109,10 @@ client.addListener('message', function (nick, to, text, message) {
 			client.say(to, "I can't forget something I don't remember already!");
 			return;
 		}
+	}
+	if (arrText[0]=="!ping") {
+		client.say(to, "Pong!");
+		return;
 	}
 	if (arrText[0]=="!time") {
 		var name = nick;
