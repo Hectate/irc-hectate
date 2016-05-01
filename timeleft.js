@@ -263,6 +263,15 @@ client.addListener('pm', function (from, text, message) {
 		client.say(arrText[1], text);
 		return;
 	}
+	else if (arrText[0]="!do") {
+		var text = "";
+		for(var i=2; i < arrText.length; i++) {
+			text += arrText[i];
+			if(i != arrText.length-1) { text += " "; }
+		}
+		client.action(arrText[1], text);
+		return;
+	}
 	else if (arrText[0]=="!identify") {
 		if (arrText.length == 1) {
 			client.say(from, "Please include the password to identify with.");
@@ -331,4 +340,7 @@ function getName(nick) {
 	}
 	//console.log("getName found -1");
 	return -1;
+}
+function getUsers(channel) {
+	return client.chans[channel].users;
 }
