@@ -4,19 +4,26 @@ require('moment-precise-range-plugin');
 var fs = require('fs');
 
 
-//note; on the server I use to run this, the working directly is actually below one level
-//so the file is on there run as './irc-hectate/users.json' instead. Change if local run :P
 var userFile = './irc-hectate/users.json';
-//var userFile = 'users.json';
 var userData = {};
 
 var endTime = new Date("May 9, 2016 21:00:00");
-var event1 = "LD35 judging ends in  ";
+var event1 = "LD35 judging ends in ";
 var event2 = ".";
 var echoMode = false;
 var echoAdmin = "Hectate";
 var botName = "JinxBot";
 
+//Local Launch config requires a couple of alterations to some variables.
+//The starting path is different, so we point to the file where it is,
+//and we change the bot's name, since JinxBot is probably running in-channel right now as well.
+if (process.argv[2] == "l") {
+	console.log("Local Launch detected, starting with alternate config.")
+	userFile = 'users.json';
+	botName = "LocalBot";
+}
+
+var saveFreq = 600000; //10 minutes in milliseconds
 
 //read the data file for users listed
 fs.readFile(userFile, function (err, data) {
@@ -30,6 +37,8 @@ var client = new ircLib.Client('irc.esper.net', botName, {
 	floodProtection: true,
 	autoRejoin: true,
 });
+
+var saveInterval = setInterval(saveData,saveFreq);
 
 //client.addListener('message', function (from, to, message) {
 //	console.log(from + ' => ' + to + ': ' + message);
@@ -196,7 +205,8 @@ client.addListener('message', function (nick, to, text, message) {
 	}
 	if(arrText[0]=="!quit" && isAdmin(nick)) {
 		console.log("Pre-quit userData save...");
-		fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
+		//fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
+		saveData();
 		console.log("Quitting IRC...");
 		client.disconnect("Goodbye",function quitIRC() {console.log("Disconnect complete, process closing...");process.exit(0); } );
 	}
@@ -284,7 +294,8 @@ client.addListener('pm', function (from, text, message) {
 	}
 	else if (arrText[0]=="!quit") {
 		console.log("Pre-quit userData save...");
-		fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
+		//fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
+		saveData();
 		console.log("Quitting IRC...");
 		client.disconnect("Goodbye",function quitIRC() {console.log("Disconnect complete, process closing...");process.exit(0); } );
 	}
@@ -343,4 +354,10 @@ function getName(nick) {
 }
 function getUsers(channel) {
 	return client.chans[channel].users;
+}
+
+//Writes userdata to disk (maybe more data later). Used for auto-backup and save-on-quits.
+function saveData() {
+	fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
+	return;
 }
