@@ -13,6 +13,8 @@ Current public all-users commands (case sensitive):
 * !fetch [string...] : Sarcastically sends user to a "let me duck duck go that for you" search results
 * !crash : simple string reply
 * !endtime : repeats the currently set endTime
+* !coffee : gives user a random type of coffee-based drink
+* !tell (nick) [string...] : Saves the message until the nick given is seen in the channel, and then the message is delivered.
 
 Current public admin commands (case sensitive):
 * !forget (nick) : erases the specified nick from the memory for the "seen" command
@@ -29,4 +31,6 @@ Current private admin command (case sensitive):
 * !say (nick/channel) [string...] : JinxBot will say the string. If a nick is given it will be a PM, if a channel is given it will go to the public channel, of course. Be sure to include the # for the channel name or else it will be treated as a nick. It is case sensitive.
 * !do (nick/channel) [string...] : JinxBot will do (/me) the string. If a nick is given it will be a PM, if a channel is given it will go to the public channel, of course. Be sure to include the # for the channel name or else it will be treated as a nick. It is case sensitive.
 * !identify (password) : Sends a message to nickserv with content of "identify (password)" to attemp to log in. Note that replies from nickserv go to the console log/file because they are server notices, not PMs.
-* !quit : same as public quit - saves data to files, quits the network, and closes the process.
+* !quitpm : same as public quit - saves data to files, quits the network, and closes the process.
+* !clearmessages : Deletes all saved messages from the "tell" command.
+* !reloadmessages : Forces a reload from messages saved to disk; useful if you want to manually clear some spurious content

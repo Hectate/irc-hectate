@@ -6,39 +6,55 @@ var fs = require('fs');
 
 var userFile = './irc-hectate/users.json';
 var userData = {};
+var msgFile = './irc-hectate/messages.json';
+var msgData = {};
 
 var endTime = new Date("May 9, 2016 21:00:00");
-var event1 = "LD35 judging ends in ";
+var event1 = "LD35 judging ends in";
 var event2 = ".";
 var echoMode = false;
 var echoAdmin = "Hectate";
 var botName = "JinxBot";
+var channel = "#stencyl";
 
 //Local Launch config requires a couple of alterations to some variables.
-//The starting path is different, so we point to the file where it is,
+//The starting path is different, so we point to the files where they are,
 //and we change the bot's name, since JinxBot is probably running in-channel right now as well.
 if (process.argv[2] == "l") {
 	console.log("Local Launch detected, starting with alternate config.")
 	userFile = 'users.json';
+	msgFile = 'messages.json';
 	botName = "LocalBot";
 }
 
 var saveFreq = 600000; //10 minutes in milliseconds
+var msgFreq = 60000; //1 minute in milliseconds
+var coffeeList = ["a mug of black coffee","a shot of espresso","a foamy cappuccino","a big latte","a sweetened mocha","a little cup of Turkish coffee","a macchiato with caramel","a strong Irish coffee"," a well-chilled, iced coffee"];
 
-//read the data file for users listed
+//read the data file for users
 fs.readFile(userFile, function (err, data) {
 	if(err) throw err;
 	userData = JSON.parse(data);
 	console.log("User data loaded.");
 });
 
+//read the data file for messages
+fs.readFile(msgFile, function (err, data) {
+	if(err) {  console.log(err); throw err; }
+	msgData = JSON.parse(data);
+	console.log("Message data loaded.");
+	//console.log(msgData);
+});
+
+
 var client = new ircLib.Client('irc.esper.net', botName, {
-	channels: ['#stencyl'],
+	channels: [channel],
 	floodProtection: true,
 	autoRejoin: true,
 });
 
 var saveInterval = setInterval(saveData,saveFreq);
+var msgInterval = setInterval(checkMessages,msgFreq);
 
 //client.addListener('message', function (from, to, message) {
 //	console.log(from + ' => ' + to + ': ' + message);
@@ -60,7 +76,7 @@ client.addListener('notice', function(nick, to, text, message) {
 
 //log messages said by users to users.json for the !seen command needs
 client.addListener('message', function(nick, to, message){
-	if(to == "#stencyl") {
+	if(to == channel ) {
 		var ts = moment();
 		if(!nameExists(nick)) {
 			userData.users.push(
@@ -104,6 +120,54 @@ client.addListener('message', function (nick, to, text, message) {
 			return;
 		}
 	}
+	if (arrText[0]=="!tell") {
+		if (arrText.length < 3 ) {
+			client.say(to, nick + ", I need a name and a message.");
+			return;
+		}
+		var handle = arrText[1];
+		
+		if (userIsPresent(to,handle)) {
+			client.say(to, nick + ", just tell them yourself!");
+			return;
+		}
+		else {
+			var ts = moment().format("MM/D/YY, h:mm A");
+			var text = "";
+			for(var i=2; i < arrText.length; i++) {
+				text += arrText[i];
+				if(i != arrText.length-1) { text += " "; }
+			}
+			
+			if(!(msgData.hasOwnProperty("users"))) {
+				console.log("Adding users to msgData");
+				msgData["users"] = {};
+			}
+			//user is not in msgData yet
+			if(!(handle in msgData.users)) {
+				msgData.users[handle] = {};
+				msgData.users[handle].messages =
+					[{
+						msgFrom:nick,
+						msgTime:ts,
+						msgContent:text
+					}];
+				//console.log(msgData.users[handle]);
+			}
+			//user is in msgData so we add to data to existing handle
+			else {
+				msgData.users[handle].messages.push
+					({
+						msgFrom:nick,
+						msgTime:ts,
+						msgContent:text
+					});
+				//console.log(msgData.users[handle]);
+			}
+			client.say(to,"I will let them know.");
+		}
+		return;
+	}
 	if(arrText[0]=="!forget" && isAdmin(nick)) {
 		if(arrText.length == 1) {
 			client.say(to, "Who should I forget, " + nick + "?");
@@ -121,6 +185,10 @@ client.addListener('message', function (nick, to, text, message) {
 	}
 	if (arrText[0]=="!ping") {
 		client.say(to, "Pong!");
+		return;
+	}
+	if (arrText[0]=="!coffee") {
+		client.action(to,"hands " + nick + " " + coffeeList[randomIntInc(0,coffeeList.length)]);
 		return;
 	}
 	if (arrText[0]=="!time") {
@@ -273,13 +341,21 @@ client.addListener('pm', function (from, text, message) {
 		client.say(arrText[1], text);
 		return;
 	}
-	else if (arrText[0]="!do") {
+	else if (arrText[0]=="!do") {
 		var text = "";
 		for(var i=2; i < arrText.length; i++) {
 			text += arrText[i];
 			if(i != arrText.length-1) { text += " "; }
 		}
 		client.action(arrText[1], text);
+		return;
+	}
+	else if (arrText[0]=="!clearmessages") {
+		clearMessages();
+		return;
+	}
+	else if (arrText[0]=="!reloadmessages") {
+		reloadMessages();
 		return;
 	}
 	else if (arrText[0]=="!identify") {
@@ -292,8 +368,8 @@ client.addListener('pm', function (from, text, message) {
 			return;
 		}
 	}
-	else if (arrText[0]=="!quit") {
-		console.log("Pre-quit userData save...");
+	else if (arrText[0]=="!quitpm") {
+		console.log("Pre-quit userData save via PM command...");
 		//fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
 		saveData();
 		console.log("Quitting IRC...");
@@ -352,12 +428,60 @@ function getName(nick) {
 	//console.log("getName found -1");
 	return -1;
 }
+//returns a JSON object containing nicks as the keys and their usermode ("@", "+", or "" usually).
 function getUsers(channel) {
 	return client.chans[channel].users;
 }
 
+//checks if a user is present in the channel specified
+function userIsPresent(chanName,userName) {
+	if (client.chans[chanName].users[userName] == null) {
+		return false;
+	}
+	else return true;
+}
+
 //Writes userdata to disk (maybe more data later). Used for auto-backup and save-on-quits.
 function saveData() {
+	fs.writeFileSync(msgFile, JSON.stringify(msgData, null, 4), console.log("Saved message data."));
 	fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
+	
+	return;
+}
+function randomIntInc (low, high) {
+    return Math.floor(Math.random() * (high - low + 1) + low);
+}
+
+//Checks current list of users against log of messages to deliver, and attempts to deliver if appropriate.
+function checkMessages() {
+	for(x in msgData.users) {
+		if(userIsPresent(channel,x)) {
+			console.log("Sending messages to: " + x)
+			client.say(x,"You have " + msgData.users[x].messages.length + ((msgData.users[x].messages.length == 1) ? " message" : " messages" ) + " waiting for you.");
+			for(y in msgData.users[x].messages) {
+				client.say(x, msgData.users[x].messages[y].msgFrom + " on " + msgData.users[x].messages[y].msgTime + ": " + msgData.users[x].messages[y].msgContent);
+			}
+			delete msgData.users[x];
+		}
+	}
+	//all done delivering or none to deliver
+	return;
+}
+//Clears all existing messages
+function clearMessages() {
+	for(x in msgData.users) {
+		delete msgData.users[x];
+	}
+	console.log("Cleared all existing messages.");
+	return;
+}
+//Reloads messages from disk to overwrite anything currently in memory.
+//Useful if you want to manually delete some contents and reload to clear spurious contents.
+function reloadMessages() {
+	fs.readFile(msgFile, function (err, data) {
+		if(err) throw err;
+		msgData = JSON.parse(data);
+		console.log("Message data loaded.");
+	});
 	return;
 }
