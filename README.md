@@ -14,6 +14,7 @@ Current public all-users commands (case sensitive):
 * !crash : simple string reply
 * !endtime : repeats the currently set endTime
 * !coffee : gives user a random type of coffee-based drink
+* !beer : serves user a beer
 * !tell (nick) [string...] : Saves the message until the nick given is seen in the channel, and then the message is delivered.
 
 Current public admin commands (case sensitive):

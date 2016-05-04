@@ -191,6 +191,10 @@ client.addListener('message', function (nick, to, text, message) {
 		client.action(to,"hands " + nick + " " + coffeeList[randomIntInc(0,coffeeList.length)]);
 		return;
 	}
+	if (arrText[0]=="!beer") {
+		client.action(to,"serves up " + nick + "'s favorite beer.");
+		return;
+	}
 	if (arrText[0]=="!time") {
 		var name = nick;
 		if(arrText.length > 1) {
