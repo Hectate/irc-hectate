@@ -1,4 +1,8 @@
+"name": "irc-hectate",
 "scripts": {
   "start": "node timeleft.js"
 },
+"files": [
+  "json"
+],
 "main": "timeleft.js"

@@ -3,11 +3,12 @@ var moment = require('moment');
 require('moment-precise-range-plugin');
 var fs = require('fs');
 
-
 var userFile = './irc-hectate/users.json';
 var userData = {};
 var msgFile = './irc-hectate/messages.json';
 var msgData = {};
+var tarotFile = "./irc-hectate/json/tarot.json";
+var tarotData = {};
 
 var endTime = new Date("May 9, 2016 21:00:00");
 var event1 = "LD35 judging ends in";
@@ -24,6 +25,7 @@ if (process.argv[2] == "l") {
 	console.log("Local Launch detected, starting with alternate config.")
 	userFile = 'users.json';
 	msgFile = 'messages.json';
+	tarotFile = './json/tarot.json';
 	botName = "LocalBot";
 }
 
@@ -44,6 +46,13 @@ fs.readFile(msgFile, function (err, data) {
 	msgData = JSON.parse(data);
 	console.log("Message data loaded.");
 	//console.log(msgData);
+});
+
+//read the data file for tarot descriptions
+fs.readFile(tarotFile, function (err,data) {
+	if(err) { console.log(err); throw err; }
+	tarotData = JSON.parse(data);
+	console.log("Tarot data loaded.");
 });
 
 
@@ -193,6 +202,20 @@ client.addListener('message', function (nick, to, text, message) {
 	}
 	if (arrText[0]=="!beer") {
 		client.action(to,"serves up " + nick + "'s favorite beer.");
+		return;
+	}
+	//grab a tarot card at random from ./json/tarot.json a describe the light and dark (pick from the list at random from within each card).
+	if (arrText[0]=="!tarot") {
+		var i = randomIntInc(0,tarotData.tarot_interpretations.length-1);
+		var ii = randomIntInc(0,tarotData.tarot_interpretations[i].keywords.length-1);
+		var iii = randomIntInc(0,tarotData.tarot_interpretations[i].meanings.light.length-1);
+		var iiii = randomIntInc(0,tarotData.tarot_interpretations[i].meanings.shadow.length-1);
+		var cardName = tarotData.tarot_interpretations[i].name;
+		var cardWord = tarotData.tarot_interpretations[i].keywords[ii];
+		var text1 = tarotData.tarot_interpretations[i].meanings.light[iii];
+		var text2 = tarotData.tarot_interpretations[i].meanings.shadow[iiii];
+		
+		client.say(to,nick + ', your card is ' + cardName + ' which is about "' + cardWord + '", and means "' + text1 + '" but also "' + text2 + '".');
 		return;
 	}
 	if (arrText[0]=="!time") {
