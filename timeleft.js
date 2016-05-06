@@ -9,6 +9,12 @@ var msgFile = './irc-hectate/messages.json';
 var msgData = {};
 var tarotFile = "./irc-hectate/json/tarot.json";
 var tarotData = {};
+var wordGameFile = './irc-hectate/json/word_clues.json';
+var wordGameData = {};
+var guessGameActive = false;
+var guessWord = "";
+var guessGameTimer = 300000; //5 minutes in milliseconds
+var guessGameTimeout;
 
 var endTime = new Date("May 9, 2016 21:00:00");
 var event1 = "LD35 judging ends in";
@@ -26,6 +32,7 @@ if (process.argv[2] == "l") {
 	userFile = 'users.json';
 	msgFile = 'messages.json';
 	tarotFile = './json/tarot.json';
+	wordGameFile = './json/word_clues.json';
 	botName = "LocalBot";
 }
 
@@ -54,6 +61,13 @@ fs.readFile(tarotFile, function (err,data) {
 	tarotData = JSON.parse(data);
 	console.log("Tarot data loaded.");
 });
+
+//read the data file for word guess game
+fs.readFile(wordGameFile, function (err,data) {
+	if(err) { console.log(err); throw err; }
+	wordGameData = JSON.parse(data);
+	console.log("Word game data loaded.");
+})
 
 
 var client = new ircLib.Client('irc.esper.net', botName, {
@@ -103,6 +117,15 @@ client.addListener('message', function(nick, to, message){
 
 client.addListener('message', function (nick, to, text, message) {
 	var arrText = text.split(" ");
+	if (guessGameActive == true) {
+		for (i in arrText) {
+			if(arrText[i] == guessWord) {
+				client.say(channel, nick + " just got the word! It was " + guessWord + "!");
+				guessGameEnd(true);
+				//TODO: award points here or something eventually...
+			}
+		}
+	}
 	if (arrText[0][0]!= '!')
 		return;
 	if (arrText[0]=="!seen") {
@@ -190,6 +213,20 @@ client.addListener('message', function (nick, to, text, message) {
 		else {
 			client.say(to, "I can't forget something I don't remember already!");
 			return;
+		}
+	}
+	if(arrText[0]=="!guessgame") {
+		if( guessGameActive == false ) {
+			//start a new word guessing game
+			guessGameStart();
+			return;
+		}
+		else //one is already going; end it and start a new one
+		{
+			if(isAdmin(nick)) {
+				guessGameEnd(false);
+				return;	
+			}
 		}
 	}
 	if (arrText[0]=="!ping") {
@@ -510,5 +547,29 @@ function reloadMessages() {
 		msgData = JSON.parse(data);
 		console.log("Message data loaded.");
 	});
+	return;
+}
+
+function guessGameStart() {
+	guessGameActive = true;
+	var obj_keys = Object.keys(wordGameData);
+	var random_key = obj_keys[Math.floor(Math.random() *obj_keys.length)];
+	guessWord = "" + random_key;
+	//console.log("guessWord: " + guessWord);
+	var cluesArray = wordGameData[random_key];
+	var t = ' | ';
+	for (i in cluesArray) {
+		t += cluesArray[i] + " | ";
+	}
+	client.say(channel,"(5 Mins) What word fits these phrases?" + t);
+	guessGameTimeout = setTimeout(guessGameEnd,guessGameTimer,false);
+	return;
+}
+function guessGameEnd(winner) {
+	guessGameActive = false;
+	if(!winner) {
+		client.say(channel, "Time is up, Game Over! Nobody guessed correctly. The word was '" + guessWord + "'.");	
+	}
+	clearTimeout(guessGameTimeout);
 	return;
 }

@@ -17,6 +17,7 @@ Current public all-users commands (case sensitive):
 * !beer : serves user a beer
 * !tarot : Reads a tarot card for the user
 * !tell (nick) [string...] : Saves the message until the nick given is seen in the channel, and then the message is delivered.
+* !guessgame : Starts a word-guessing game by providing a series of clues to the word and starting a 5 minute timer. All words (space separated) said in channel are considered valid entries, including as part of a larger string of words (intentional or otherwise).
 
 Current public admin commands (case sensitive):
 * !forget (nick) : erases the specified nick from the memory for the "seen" command
@@ -24,6 +25,7 @@ Current public admin commands (case sensitive):
 * !sethours (number) : sets the endTime to a timestamp equal to the current timestamp + (number) of hours in the future
 * !setevent1 [string...] : sets a string to the front end of the "time" command - everything before the time left itself
 * !setevent2 [string...] : sets a string (or puncutation) to back end of the "time" command - everything after the time left
+* !guessgame : If said by Admin while a game is active, it will end the current game regardless of time left. Otherwise it will start a new game as usual if one is not going yet.
 * !quit : bot quits network, saves data to files, and closes the process. Currently the only way to save data in memory to the file system (unfortunately, it is lost in crashes right now)
 
 Current private admin command (case sensitive):
