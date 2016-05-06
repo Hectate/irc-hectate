@@ -197,7 +197,7 @@ client.addListener('message', function (nick, to, text, message) {
 		return;
 	}
 	if (arrText[0]=="!coffee") {
-		client.action(to,"hands " + nick + " " + coffeeList[randomIntInc(0,coffeeList.length)]);
+		client.action(to,"hands " + nick + " " + coffeeList[randomIntInc(0,coffeeList.length-1)]);
 		return;
 	}
 	if (arrText[0]=="!beer") {
