@@ -1,3 +1,5 @@
+/// <reference path=".vscode/node.d.ts" />
+
 var ircLib = require('irc');
 var moment = require('moment');
 require('moment-precise-range-plugin');
@@ -39,6 +41,7 @@ if (process.argv[2] == "l") {
 var saveFreq = 600000; //10 minutes in milliseconds
 var msgFreq = 60000; //1 minute in milliseconds
 var coffeeList = ["a mug of black coffee","a shot of espresso","a foamy cappuccino","a big latte","a sweetened mocha","a little cup of Turkish coffee","a macchiato with caramel","a strong Irish coffee"," a well-chilled, iced coffee"];
+
 
 //read the data file for users
 fs.readFile(userFile, function (err, data) {

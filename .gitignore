@@ -4,3 +4,6 @@ users.json
 messages_bak.json
 users.json
 picktest.js
+.vscode/node.d.ts
+.vscode/settings.json
+users.json
