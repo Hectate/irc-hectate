@@ -124,7 +124,8 @@ client.addListener('message', function (nick, to, text, message) {
 		for (i in arrText) {
 			if(arrText[i] == guessWord || (arrText[i] == (guessWord + 's')) || ((arrText[i].slice(0,arrText[i].length-1)) == guessWord)) {
 				client.say(channel, nick + " just got the word! It was " + guessWord + "!");
-				guessGameEnd(true);	
+				guessGameEnd(true);
+				break;
 				//TODO: award points here or something eventually...
 			}
 		}
