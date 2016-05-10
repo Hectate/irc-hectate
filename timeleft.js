@@ -18,8 +18,8 @@ var guessWord = "";
 var guessGameTimer = 300000; //5 minutes in milliseconds
 var guessGameTimeout;
 
-var endTime = new Date("May 9, 2016 21:00:00");
-var event1 = "LD35 judging ends in";
+var endTime = new Date("May 20, 2016 21:00:00");
+var event1 = "Adventure Jam ends in";
 var event2 = ".";
 var echoMode = false;
 var echoAdmin = "Hectate";
@@ -40,7 +40,22 @@ if (process.argv[2] == "l") {
 
 var saveFreq = 600000; //10 minutes in milliseconds
 var msgFreq = 60000; //1 minute in milliseconds
-var coffeeList = ["a mug of black coffee","a shot of espresso","a foamy cappuccino","a big latte","a sweetened mocha","a little cup of Turkish coffee","a macchiato with caramel","a strong Irish coffee"," a well-chilled, iced coffee"];
+var coffeeList = [	"a mug of black coffee",
+					"a shot of espresso",
+					"a foamy cappuccino",
+					"a big latte",
+					"a sweetened mocha",
+					"a little cup of Turkish coffee",
+					"a macchiato with caramel drizzled on top",
+					"a strong Irish coffee",
+					"a well-chilled, iced coffee",
+					"one of those cups of coffee with the leaf design in the foam",
+					"a cup of cream and sugar with a tiny hint of coffee in there somewhere like how Hectate's wife drinks it",
+					"a caffeine pill and a glass of water because he's out of coffee at the moment",
+					"a foam cup of re-warmed office 'coffee' from the bottom dregs of the 3:30 PM pot",
+					"something that is not quite like coffee but it could be if you hold your nose and drank it in one big gulp",
+					"a big cup of nope"
+					];
 
 
 //read the data file for users
