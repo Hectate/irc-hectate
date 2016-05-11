@@ -15,6 +15,7 @@ Current public all-users commands (case sensitive):
 * !endtime : repeats the currently set endTime
 * !coffee : gives user a random type of coffee-based drink
 * !beer : serves user a beer
+* !tea : serves user a cup of tea
 * !tarot : Reads a tarot card for the user
 * !tell (nick) [string...] : Saves the message until the nick given is seen in the channel, and then the message is delivered.
 * !guessgame : Starts a word-guessing game by providing a series of clues to the word and starting a 5 minute timer. All words (space separated) said in channel are considered valid entries, including as part of a larger string of words (intentional or otherwise).

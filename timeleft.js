@@ -53,7 +53,7 @@ var coffeeList = [	"a mug of black coffee",
 					"a cup of cream and sugar with a tiny hint of coffee in there somewhere like how Hectate's wife drinks it",
 					"a caffeine pill and a glass of water because he's out of coffee at the moment",
 					"a foam cup of re-warmed office 'coffee' from the bottom dregs of the 3:30 PM pot",
-					"something that is not quite like coffee but it could be if you hold your nose and drank it in one big gulp",
+					"something almost, but not quite entirely unlike coffee",
 					"a big cup of nope"
 					];
 
@@ -70,7 +70,6 @@ fs.readFile(msgFile, function (err, data) {
 	if(err) {  console.log(err); throw err; }
 	msgData = JSON.parse(data);
 	console.log("Message data loaded.");
-	//console.log(msgData);
 });
 
 //read the data file for tarot descriptions
@@ -258,6 +257,10 @@ client.addListener('message', function (nick, to, text, message) {
 	}
 	if (arrText[0]=="!beer") {
 		client.action(to,"serves up " + nick + "'s favorite beer.");
+		return;
+	}
+	if (arrText[0]=="!tea") {
+		client.action(to, "prepares a nice cup of tea for " + nick + ".");
 		return;
 	}
 	//grab a tarot card at random from ./json/tarot.json a describe the light and dark (pick from the list at random from within each card).
