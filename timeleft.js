@@ -54,7 +54,10 @@ var coffeeList = [	"a mug of black coffee",
 					"a caffeine pill and a glass of water because he's out of coffee at the moment",
 					"a foam cup of re-warmed office 'coffee' from the bottom dregs of the 3:30 PM pot",
 					"something almost, but not quite entirely unlike coffee",
-					"a big cup of nope"
+					"a big cup of nope",
+					"a recepticle of dihydrogen-oxide combined with a solution made from pulverized, charred seeds of the plant Coffea arabica, separated by a gravity-assist refinement sieve.",
+					"a cup of live bait worms from the tacklebox. Yum.",
+					
 					];
 
 
@@ -577,7 +580,7 @@ function guessGameStart() {
 	var obj_keys = Object.keys(wordGameData);
 	var random_key = obj_keys[Math.floor(Math.random() *obj_keys.length)];
 	guessWord = "" + random_key;
-	console.log("guessWord: " + guessWord);
+	//console.log("guessWord: " + guessWord);
 	var cluesArray = wordGameData[random_key];
 	var t = ' | ';
 	for (i in cluesArray) {
@@ -590,7 +593,10 @@ function guessGameStart() {
 function guessGameEnd(winner) {
 	guessGameActive = false;
 	if(!winner) {
-		client.say(channel, "Time is up, Game Over! Nobody guessed correctly. The word was '" + guessWord + "'.");	
+		client.say(channel, "Time is up, Game Over! Nobody guessed correctly. The word was '" + guessWord + "'.");
+		if(randomIntInc(0,100) == 0) {
+			client.say(channel, "Really? Nobody got that one?");
+		}	
 	}
 	clearTimeout(guessGameTimeout);
 	return;
