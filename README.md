@@ -19,6 +19,7 @@ Current public all-users commands (case sensitive):
 * !tarot : Reads a tarot card for the user
 * !tell (nick) [string...] : Saves the message until the nick given is seen in the channel, and then the message is delivered.
 * !guessgame : Starts a word-guessing game by providing a series of clues to the word and starting a 5 minute timer. All words (space separated) said in channel are considered valid entries, including as part of a larger string of words (intentional or otherwise).
+* !justin : don't ask.
 
 Current public admin commands (case sensitive):
 * !forget (nick) : erases the specified nick from the memory for the "seen" command

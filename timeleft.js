@@ -281,11 +281,11 @@ client.addListener('message', function (nick, to, text, message) {
 		return;
 	}
 	if (arrText[0]=="!time") {
-		var name = nick;
-		if(arrText.length > 1) {
-			name = arrText[1];
-		}
-		
+		//var name = nick;
+		//if(arrText.length > 1) {
+		//	name = arrText[1];
+		//}
+		//
 		//var timeLeft = new moment(getTimeLeft());
 		var diff = moment.preciseDiff(endTime,moment());
 		client.say(to, event1 + " " + diff + event2);
@@ -310,6 +310,39 @@ client.addListener('message', function (nick, to, text, message) {
 		{
 			client.say(to, "Sorry, " + name + ", I can't do that for you.");
 		}
+		return;
+	}
+	/*
+	if(arrText[0]=="!weekend") {
+		var today = moment();
+		if(today.day() == 5) { //is it Friday? (day 5 in 0-6)
+			client.say(to,"Yes, today is Friday! Get ready to party!");
+		}
+		else if (today.day() > 5) { //it's past friday
+			client.say(to,"Yes, it's the weekend! You should be partying!");
+		}
+		else {
+			
+		}
+	}
+	*/
+	//How long until Justin's birthday on April 5th?
+	if(arrText[0].toLowerCase()=="!justin") {
+		var jbday = moment({M:4,d:5});
+		/* Debugging code; left in for now
+		if(arrText[1]=="true") {
+			jbday = moment();
+		}
+		*/
+		if(moment().isSame(jbday,'day')) {
+			client.say(to,"Today is Justin's birthday! Happy Birthday, Justin!");
+			return;
+		}
+		if(jbday.isBefore(moment())) {
+			jbday.add(1, 'y');
+		}
+		var diff = moment.preciseDiff(jbday,moment());
+		client.say(to, "Justin's next birthday is in " + diff + ".");
 		return;
 	}
 	if(arrText[0]=="!settime") {
