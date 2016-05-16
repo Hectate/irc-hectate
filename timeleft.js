@@ -139,7 +139,7 @@ client.addListener('message', function (nick, to, text, message) {
 	var arrText = text.split(" ");
 	if (guessGameActive == true) {
 		for (i in arrText) {
-			if(arrText[i] == guessWord || (arrText[i] == (guessWord + 's')) || ((arrText[i].slice(0,arrText[i].length-1)) == guessWord)) {
+			if(arrText[i] == guessWord || (arrText[i] == (guessWord + 's')) || ((arrText[i].slice(0,arrText[i].length-1)) == guessWord) || (guessWord == (arrText[i] + 's'))) {
 				client.say(channel, nick + " just got the word! It was " + guessWord + "!");
 				guessGameEnd(true);
 				break;
