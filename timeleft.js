@@ -4,6 +4,13 @@ var ircLib = require('irc');
 var moment = require('moment');
 require('moment-precise-range-plugin');
 var fs = require('fs');
+var Discord = require('discord.js');
+if (process.argv[2] == "l") {
+	var tokenJSON = require('./json/discord_token.json');
+}
+else {
+	var tokenJSON = require('./irc-hectate/json/discord_token.json');
+}
 
 var userFile = './irc-hectate/users.json';
 var userData = {};
@@ -37,6 +44,8 @@ if (process.argv[2] == "l") {
 	wordGameFile = './json/word_clues.json';
 	botName = "LocalBot";
 }
+
+console.log(tokenJSON.token);
 
 var saveFreq = 600000; //10 minutes in milliseconds
 var msgFreq = 60000; //1 minute in milliseconds
@@ -95,6 +104,25 @@ var client = new ircLib.Client('irc.esper.net', botName, {
 	floodProtection: true,
 	autoRejoin: true,
 });
+
+
+var dsClient = new Discord.Client();
+dsClient.on('message', function(message) {
+	if(message.content === "ping") {
+		dsClient.reply(message, "pong");
+	}
+});
+
+
+dsClient.loginWithToken('MjE0MDc4NzYwNzcxNzgwNjA5.CpEI1Q.QqhD0MV9_cQ1F5LUJAR1zHXtDdI', output);
+
+function output(error, token) {
+        if (error) {
+                console.log('There was an error logging in: ' + error);
+                return;
+        } else
+                console.log('Logged in. Token: ' + token);
+}
 
 var saveInterval = setInterval(saveData,saveFreq);
 var msgInterval = setInterval(checkMessages,msgFreq);
