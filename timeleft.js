@@ -4,8 +4,9 @@ var ircLib = require('irc');
 var moment = require('moment');
 require('moment-precise-range-plugin');
 var fs = require('fs');
-var Discord = require('discord.js');
-var tokenJSON = require('./json/discord_token.json');
+var ds = require('./dsClient.js');
+//var Discord = require('discord.js');
+//var tokenJSON = require('./json/discord_token.json');
 
 var userFile = './irc-hectate/users.json';
 var userData = {};
@@ -98,24 +99,7 @@ var client = new ircLib.Client('irc.esper.net', botName, {
 	autoRejoin: true,
 });
 
-
-var dsClient = new Discord.Client();
-dsClient.on('message', function(message) {
-	if(message.content === "ping") {
-		dsClient.reply(message, "pong");
-	}
-});
-
-
-dsClient.loginWithToken(tokenJSON.token, output);
-
-function output(error, token) {
-        if (error) {
-                console.log('There was an error logging in: ' + error);
-                return;
-        } else
-                console.log('Logged in. Token: ' + token);
-}
+ds.dsStart(client);
 
 var saveInterval = setInterval(saveData,saveFreq);
 var msgInterval = setInterval(checkMessages,msgFreq);
@@ -153,6 +137,7 @@ client.addListener('message', function(nick, to, message){
 		else {
 			userData.users[getName(nick)].timestamp = ts;
 		}
+		ds.dsIrcToDiscord(nick,message);
 	}
 });
 
@@ -422,6 +407,10 @@ client.addListener('message', function (nick, to, text, message) {
 		client.disconnect("Goodbye",function quitIRC() {console.log("Disconnect complete, process closing...");process.exit(0); } );
 	}
 });	
+
+client.addListener('dsMessage',function(from,text) {
+	client.say(channel,"[" + from + "] " + text);
+});
 
 //The following are the "admin" commands
 client.addListener('pm', function (from, text, message) {
