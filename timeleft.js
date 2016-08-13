@@ -20,8 +20,8 @@ var guessWord = "";
 var guessGameTimer = 300000; //5 minutes in milliseconds
 var guessGameTimeout;
 
-var endTime = new Date("May 20, 2016 21:00:00");
-var event1 = "Adventure Jam ends in";
+var endTime = new Date("August 26, 2016 21:00:00");
+var event1 = "Ludum Dare begins in";
 var event2 = ".";
 var echoMode = false;
 var echoAdmin = "Hectate";
