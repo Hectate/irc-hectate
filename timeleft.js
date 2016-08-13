@@ -45,8 +45,6 @@ if (process.argv[2] == "l") {
 	botName = "LocalBot";
 }
 
-console.log(tokenJSON.token);
-
 var saveFreq = 600000; //10 minutes in milliseconds
 var msgFreq = 60000; //1 minute in milliseconds
 var coffeeList = [	"a mug of black coffee",
@@ -114,7 +112,7 @@ dsClient.on('message', function(message) {
 });
 
 
-dsClient.loginWithToken('MjE0MDc4NzYwNzcxNzgwNjA5.CpEI1Q.QqhD0MV9_cQ1F5LUJAR1zHXtDdI', output);
+dsClient.loginWithToken(tokenJSON.token, output);
 
 function output(error, token) {
         if (error) {
