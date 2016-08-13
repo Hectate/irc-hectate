@@ -7,3 +7,4 @@ picktest.js
 .vscode/node.d.ts
 .vscode/settings.json
 users.json
+json/discord_token.json

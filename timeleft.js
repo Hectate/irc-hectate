@@ -5,12 +5,7 @@ var moment = require('moment');
 require('moment-precise-range-plugin');
 var fs = require('fs');
 var Discord = require('discord.js');
-if (process.argv[2] == "l") {
-	var tokenJSON = require('./json/discord_token.json');
-}
-else {
-	var tokenJSON = require('./irc-hectate/json/discord_token.json');
-}
+var tokenJSON = require('./json/discord_token.json');
 
 var userFile = './irc-hectate/users.json';
 var userData = {};
