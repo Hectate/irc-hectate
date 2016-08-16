@@ -186,7 +186,7 @@ client.addListener('message', function (nick, to, text, message) {
 		}
 		var handle = arrText[1];
 		
-		if (userIsPresent(to,handle)) {
+		if (userIsPresent(channel,handle)) {
 			client.say(to, nick + ", just tell them yourself!");
 			return;
 		}
@@ -575,8 +575,8 @@ function userIsPresent(chanName,userName) {
 
 //Writes userdata to disk (maybe more data later). Used for auto-backup and save-on-quits.
 function saveData() {
-	fs.writeFileSync(msgFile, JSON.stringify(msgData, null, 4), console.log("Saved message data."));
-	fs.writeFileSync(userFile, JSON.stringify(userData, null, 4), console.log("Saved user data." ));
+	fs.writeFileSync(msgFile, JSON.stringify(msgData, null, 4) );
+	fs.writeFileSync(userFile, JSON.stringify(userData, null, 4) );
 	
 	return;
 }

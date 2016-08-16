@@ -24,7 +24,9 @@ exports.dsStart = function(client) {
         }
         else {
                //console.log('(${message.server.name} / ${message.channel.name}) ${message.author.name}: ${message.content}');
-               ircClient.emit('dsMessage',message.author.name, message.content);
+               if(message.channel == dsClient.servers.get("name", "Stencyl").channels.get("name", "dinosaurs")) {
+                   ircClient.emit('dsMessage',message.author.name, message.content);
+               }
         }
     });
 
@@ -43,7 +45,7 @@ exports.dsStart = function(client) {
 
 exports.dsIrcToDiscord = function(from, message) {
     if(dsActive) {
-        channel = dsClient.servers.get("name", "Stencyl").channels.get("name", "general");
+        channel = dsClient.servers.get("name", "Stencyl").channels.get("name", "dinosaurs");
         dsClient.sendMessage(channel,"<" + from + "> " + message);
         return;
     }
