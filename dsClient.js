@@ -9,9 +9,9 @@ var dsClient = new Discord.Client();
 var dsActive = false;
 var channel;
 
-var endTime = new Date("August 27, 2016 01:00:00 UTC");
-var event1 = "Ludum Dare begins in";
-var event2 = ".";
+var endTime = new Date("August 30, 2016 01:00:00 UTC");
+var event1 = "Ludum Dare ended";
+var event2 = "ago.";
 
 exports.dsStart = function(client) {
     ircClient = client;
@@ -115,9 +115,17 @@ function parseMessage(server,source,author,content) {
 		dsClient.sendMessage(source,"Event2 description changed to " + event2);
 		return;
 	}
+	if(arrText[0]=="!ping") {
+		dsClient.sendMessage(source,"Pong!");
+		return;
+	}
+	if(arrText[0]=="!echo" && isAdmin(author)) {
+		dsClient.sendMessage(source,"Echoing: " + content);
+		return;
+	}
 }
 
-//TODO set up admin check via Discord roles
+//Checks if a user has the "operator" role
 function isAdmin(user) {
     var opRole = dsClient.servers.get("name", "Stencyl").roles.get("name","operator");
     if ( user.hasRole(opRole)) { return true; }
