@@ -2,7 +2,7 @@ require('events');
 var tl = require('./timeleft.js');
 var moment = require('moment');
 require('moment-precise-range-plugin');
-var ircClient;
+//var ircClient;
 var Discord = require('discord.js');
 var tokenJSON = require('./json/discord_token.json');
 var dsClient = new Discord.Client();
@@ -10,12 +10,12 @@ var dsActive = false;
 var channel;
 
 var endTime = new Date("August 30, 2016 01:00:00 UTC");
-var event1 = "Ludum Dare ended";
-var event2 = "ago.";
+var event1 = "StencylJam '16 begins in";
+var event2 = ".";
 
-exports.dsStart = function(client) {
-    ircClient = client;
-    dsClient.on('message', function(message) {
+exports.dsStart = function() {
+    //ircClient = client;
+    dsClient.on('message', message => {
         if(message.author.bot) return;
 	    //if(message.content === "ping") {
 		//    dsClient.reply(message, "pong");
@@ -28,58 +28,52 @@ exports.dsStart = function(client) {
             //do nothing because it's ourself
             return;
         }
-        else if (message.channel == dsClient.servers.get("name", "Stencyl").channels.get("name", "dinosaurs")) {
+		/* IRC bridging currently disabled... eventually to be removed entirely
+        else if (message.channel == dsClient.guilds.get("name", "Stencyl").channels.get("name", "dinosaurs")) {
             ircClient.emit('dsMessage',message.author.name, message.content);
         }
+		*/
         //if the message is not from a bot, a PM, or from THIS client (also a bot), parse it for commands...
         else {
-            parseMessage(message.server,message.channel,message.author,message.cleanContent);
+            parseMessage(message.guild,message.channel,message.member,message.content);
             return;
         }
     });
 
-
-    dsClient.loginWithToken(tokenJSON.token, output);
-
-    function output(error, token) {
-            if (error) {
-                    console.log('There was an error logging in: ' + error);
-                    return;
-            } else
-                    console.log('Logged in. Token: ' + token);
-                    dsActive = true;
-    }
+    dsClient.login(tokenJSON.token);
 }
 
+/* IRC Briding currently disabled... eventually to be removed entirely
 exports.dsIrcToDiscord = function(from, message) {
     if(dsActive) {
-        channel = dsClient.servers.get("name", "Stencyl").channels.get("name", "dinosaurs");
+        channel = dsClient.guilds.get("name", "Stencyl").channels.get("name", "dinosaurs");
         dsClient.sendMessage(channel,"<" + from + "> " + message);
         return;
     }
 }
+*/
 
 //pulls message information and checks for commands, etc...
-function parseMessage(server,source,author,content) {
+function parseMessage(guild,source,author,content) {
     var arrText = content.split(" ");
     if (arrText[0][0]!= '!')
 		return;
     if (arrText[0]=="!time") {
 		var diff = moment.preciseDiff(endTime,moment());
-		dsClient.sendMessage(source, event1 + " " + diff + event2);
+		source.sendMessage(event1 + " " + diff + event2);
 		return;
 	}
     if(arrText[0]=="!settime") {
 		if(!isAdmin(author)) { return; }
 		else {
 		//endTime = new Date("August 27, 2016 01:00:00 UTC");
-		dsClient.sendMessage(source, "Changing target time to: " + arrText[1] + " " + arrText[2] + " " + arrText[3] + " " + arrText[4] + " " + arrText[5]);
+		source.sendMessage("Changing target time to: " + arrText[1] + " " + arrText[2] + " " + arrText[3] + " " + arrText[4] + " " + arrText[5]);
 		endTime = new Date(arrText[1] + " " + arrText[2] + " " + arrText[3] + " " + arrText[4] + " " + arrText[5]);
 		return;
 		}
 	}
 	if(arrText[0]=="!endtime") {
-		dsClient.sendMessage(source, "Current end time is set to " + endTime);
+		source.sendMessage("Current end time is set to " + endTime);
 		return;
 	}
 	if(arrText[0]=="!sethours") {
@@ -87,7 +81,7 @@ function parseMessage(server,source,author,content) {
 		else {
 			endTime = new Date();
 			endTime.setTime(endTime.getTime() + (parseInt(arrText[1])*60*60*1000));
-			dsClient.sendMessage(source, "Time is now " + endTime);
+			source.sendMessage("Time is now " + endTime);
 			return;
 		}
 	}
@@ -97,7 +91,7 @@ function parseMessage(server,source,author,content) {
 			event1 += arrText[i];
 			if(i != arrText.length-1) { event1 += " "; }
 		}
-		dsClient.sendMessage(source,"Event1 description changed to " + event1);
+		source.sendMessage("Event1 description changed to " + event1);
 		return;
 	}
 	if(arrText[0]=="!setevent2" && isAdmin(author)) {
@@ -112,22 +106,24 @@ function parseMessage(server,source,author,content) {
 			event2 += arrText[i];
 			if(i != arrText.length-1) { event2 += " "; }
 		}
-		dsClient.sendMessage(source,"Event2 description changed to " + event2);
+		source.sendMessage("Event2 description changed to " + event2);
 		return;
 	}
 	if(arrText[0]=="!ping") {
-		dsClient.sendMessage(source,"Pong!");
+		source.sendMessage("Pong!");
 		return;
 	}
 	if(arrText[0]=="!echo" && isAdmin(author)) {
-		dsClient.sendMessage(source,"Echoing: " + content);
+		source.sendMessage("Echoing: " + content);
 		return;
 	}
 }
 
-//Checks if a user has the "operator" role
-function isAdmin(user) {
-    var opRole = dsClient.servers.get("name", "Stencyl").roles.get("name","operator");
-    if ( user.hasRole(opRole)) { return true; }
+//Checks if a member has the "operator" role
+function isAdmin(member) {
+    var opRole = dsClient.guilds.find("name", "Stencyl").roles.find("name","operator");
+	if ( member.roles.has(opRole.id)) {
+		return true;
+	}
     else return false;
 }

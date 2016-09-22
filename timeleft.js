@@ -1,6 +1,6 @@
 /// <reference path=".vscode/node.d.ts" />
 
-var ircLib = require('irc');
+//var ircLib = require('irc');
 var moment = require('moment');
 require('moment-precise-range-plugin');
 var fs = require('fs');
@@ -63,7 +63,7 @@ var coffeeList = [	"a mug of black coffee",
 					"anti-coffee."
 					];
 
-
+/*
 //read the data file for users
 fs.readFile(userFile, function (err, data) {
 	if(err) throw err;
@@ -92,22 +92,22 @@ fs.readFile(wordGameFile, function (err,data) {
 	console.log("Word game data loaded.");
 })
 
-
 var client = new ircLib.Client('irc.esper.net', botName, {
 	channels: [channel],
 	floodProtection: true,
 	autoRejoin: true,
 });
+*/
 
-ds.dsStart(client);
+ds.dsStart();
 
-var saveInterval = setInterval(saveData,saveFreq);
-var msgInterval = setInterval(checkMessages,msgFreq);
+//var saveInterval = setInterval(saveData,saveFreq);
+//var msgInterval = setInterval(checkMessages,msgFreq);
 
 //client.addListener('message', function (from, to, message) {
 //	console.log(from + ' => ' + to + ': ' + message);
 //});
-
+/*
 client.addListener('quit', function(nick,reason,channel,message) {
 	if(nick == echoAdmin) {
 		echoMode = false;
@@ -318,28 +318,10 @@ client.addListener('message', function (nick, to, text, message) {
 		}
 		return;
 	}
-	/*
-	if(arrText[0]=="!weekend") {
-		var today = moment();
-		if(today.day() == 5) { //is it Friday? (day 5 in 0-6)
-			client.say(to,"Yes, today is Friday! Get ready to party!");
-		}
-		else if (today.day() > 5) { //it's past friday
-			client.say(to,"Yes, it's the weekend! You should be partying!");
-		}
-		else {
-			
-		}
-	}
-	*/
+
 	//How long until Justin's birthday on April 5th?
 	if(arrText[0].toLowerCase()=="!justin") {
 		var jbday = moment({M:4,d:5});
-		/* Debugging code; left in for now
-		if(arrText[1]=="true") {
-			jbday = moment();
-		}
-		*/
 		if(moment().isSame(jbday,'day')) {
 			client.say(to,"Today is Justin's birthday! Happy Birthday, Justin!");
 			return;
@@ -644,3 +626,4 @@ function guessGameEnd(winner) {
 	clearTimeout(guessGameTimeout);
 	return;
 }
+*/
