@@ -1,6 +1,9 @@
 /// <reference path=".vscode/node.d.ts" />
 
 //var ircLib = require('irc');
+
+"use strict";
+
 var moment = require('moment');
 require('moment-precise-range-plugin');
 var fs = require('fs');

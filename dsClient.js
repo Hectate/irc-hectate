@@ -1,3 +1,5 @@
+"use strict";
+
 require('events');
 var tl = require('./timeleft.js');
 var moment = require('moment');
