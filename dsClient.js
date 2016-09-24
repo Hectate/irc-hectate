@@ -1,22 +1,48 @@
 "use strict";
 
 require('events');
-var tl = require('./timeleft.js');
+const os = require('os');
 var moment = require('moment');
 require('moment-precise-range-plugin');
-//var ircClient;
 var Discord = require('discord.js');
 var tokenJSON = require('./json/discord_token.json');
 var dsClient = new Discord.Client();
 var dsActive = false;
-var channel;
+var postTweets = true;
+var tweetChannel;
+var sharedEmitter;
 
 var endTime = new Date("August 30, 2016 01:00:00 UTC");
 var event1 = "StencylJam '16 begins in";
 var event2 = ".";
 
-exports.dsStart = function() {
-    //ircClient = client;
+exports.dsStart = function(emitter) {
+
+	sharedEmitter = emitter;
+	sharedEmitter.on('dsTweet', tweet => {
+		if(dsActive) {
+			if(postTweets) {
+				//console.log("trying to post in discord");
+				tweetChannel.sendMessage(
+					"New tweet by " + tweet.user.screen_name
+					//+ os.EOL + tweet.text
+					+ os.EOL + "https://twitter.com/"
+						+ tweet.user.screen_name
+						+ "/status/"
+						+ tweet.id_str
+				);
+			}
+		}
+		return;
+	});
+
+	dsClient.on('ready', () => {
+		console.log("Discord client ready.");
+		dsActive=true;
+		tweetChannel = dsClient.guilds.find("name","Stencyl").channels.find("name","tweets");
+		sharedEmitter.emit('dsReady');
+	});
+
     dsClient.on('message', message => {
         if(message.author.bot) return;
 	    //if(message.content === "ping") {
@@ -30,11 +56,6 @@ exports.dsStart = function() {
             //do nothing because it's ourself
             return;
         }
-		/* IRC bridging currently disabled... eventually to be removed entirely
-        else if (message.channel == dsClient.guilds.get("name", "Stencyl").channels.get("name", "dinosaurs")) {
-            ircClient.emit('dsMessage',message.author.name, message.content);
-        }
-		*/
         //if the message is not from a bot, a PM, or from THIS client (also a bot), parse it for commands...
         else {
             parseMessage(message.guild,message.channel,message.member,message.content);
@@ -42,18 +63,8 @@ exports.dsStart = function() {
         }
     });
 
-    dsClient.login(tokenJSON.token);
+   dsClient.login(tokenJSON.token);
 }
-
-/* IRC Briding currently disabled... eventually to be removed entirely
-exports.dsIrcToDiscord = function(from, message) {
-    if(dsActive) {
-        channel = dsClient.guilds.get("name", "Stencyl").channels.get("name", "dinosaurs");
-        dsClient.sendMessage(channel,"<" + from + "> " + message);
-        return;
-    }
-}
-*/
 
 //pulls message information and checks for commands, etc...
 function parseMessage(guild,source,author,content) {
@@ -101,6 +112,12 @@ function parseMessage(guild,source,author,content) {
 		//this is just so we can put immediate puncuation at the end without the leading space needed for words
 		if(arrText[1]=="." || arrText[1]=="?" || arrText[1]=="!") {
 			event2 = arrText[1];
+			for(var i=2; i < arrText.length; i++) {
+				if(i == 2) { event2 += " "; }
+				event2 += arrText[i];
+				if(i != arrText.length-1) { event2 += " "; }
+			}
+			source.sendMessage("Event2 description changed to " + event2);
 			return;
 		}
 		for(var i=1; i < arrText.length; i++) {
@@ -117,6 +134,15 @@ function parseMessage(guild,source,author,content) {
 	}
 	if(arrText[0]=="!echo" && isAdmin(author)) {
 		source.sendMessage("Echoing: " + content);
+		return;
+	}
+	if(arrText[0]=="!tweetstatus") {
+		source.sendMessage("Tweet streaming is currently " + postTweets);
+		return;
+	}
+	if(arrText[0]=="!tweettoggle" && isAdmin(author)) {
+		postTweets = !postTweets;
+		source.sendMessage("Tweet streaming is now " + postTweets);
 		return;
 	}
 }
