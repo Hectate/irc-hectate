@@ -12,7 +12,7 @@ var postTweets = true;
 var tweetChannel;
 var sharedEmitter;
 
-var endTime = new Date("August 30, 2016 01:00:00 UTC");
+var endTime = new Date("October 7, 2016 00:00:00 PDT");
 var event1 = "StencylJam '16 begins in";
 var event2 = ".";
 
@@ -34,6 +34,10 @@ exports.dsStart = function(emitter) {
 			}
 		}
 		return;
+	});
+
+	dsClient.on('error', (error) => {
+		console.log(error);
 	});
 
 	dsClient.on('ready', () => {

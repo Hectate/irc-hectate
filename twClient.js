@@ -22,6 +22,9 @@ exports.twStart = function(emitter) {
             sharedEmitter.emit('dsTweet', tweet);
         } 
     });
+    stream.on('error', function(error) {
+        console.log(error);
+    });
 }
 
 function isRetweet(tweet) {
