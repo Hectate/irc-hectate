@@ -14,7 +14,7 @@ exports.twStart = function(emitter) {
         //sharedEmitter.emit('dsTweet', "STRING");
     });
 
-    var stream = twClient.stream('statuses/filter', { track: ["stencyl", "madeinstencyl","stencyl's","stencyls","stencly"] });
+    var stream = twClient.stream('statuses/filter', { track: ["stencyl", "madeinstencyl","stencyl's","stencyls","stencly","stencylgamejam"] });
     stream.on('tweet', function (tweet) {
         //console.log(tweet);
         if(!isRetweet(tweet)) {
