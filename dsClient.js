@@ -37,7 +37,7 @@ exports.dsStart = function(emitter) {
 					+ "/status/"
 					+ tweet.id_str
 					+ ">"
-					+ mediaURL
+					//+ mediaURL
 				);
 			}
 		}
