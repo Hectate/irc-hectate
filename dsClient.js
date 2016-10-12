@@ -25,7 +25,7 @@ exports.dsStart = function(emitter) {
 				var mediaURL = "";
 				console.log(tweet);
 				//console.log("trying to post in discord");
-				if(tweet.entities.media.length > 0) {
+				if(tweet.entities.hasOwnProperty('media')) {
 					mediaURL = os.EOL + tweet.entities.media[0].media_url; 
 				}
 				//We wrap the URL in <> so Discord doesn't embed the tweet - it comes out really ugly most of the time.
