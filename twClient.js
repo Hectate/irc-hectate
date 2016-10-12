@@ -8,9 +8,9 @@ var sharedEmitter;
 var twClient = new Twit(twTokenJSON);
 
 exports.twStart = function(emitter) {
-    sharedEmitter = emitter;
-    sharedEmitter.on('dsReady', () => {
-        //console.log("reading tweets");
+        sharedEmitter = emitter;
+        sharedEmitter.on('dsReady', () => {
+        console.log("reading tweets");
         //sharedEmitter.emit('dsTweet', "STRING");
     });
 

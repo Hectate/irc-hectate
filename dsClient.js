@@ -12,9 +12,9 @@ var postTweets = true;
 var tweetChannel;
 var sharedEmitter;
 
-var endTime = new Date("October 7, 2016 00:00:00 PDT");
-var event1 = "StencylJam '16 begins in";
-var event2 = ".";
+var endTime = new Date("October 16, 2016 07:00:00 EDT");
+var event1 = "StencylJam '16 ends in";
+var event2 = ". The theme is 'Spooky!'.";
 
 exports.dsStart = function(emitter) {
 
@@ -22,14 +22,22 @@ exports.dsStart = function(emitter) {
 	sharedEmitter.on('dsTweet', tweet => {
 		if(dsActive) {
 			if(postTweets) {
+				var mediaURL = "";
+				console.log(tweet);
 				//console.log("trying to post in discord");
+				if(tweet.entities.media.length > 0) {
+					mediaURL = os.EOL + tweet.entities.media[0].media_url; 
+				}
+				//We wrap the URL in <> so Discord doesn't embed the tweet - it comes out really ugly most of the time.
 				tweetChannel.sendMessage(
-					"New tweet by " + tweet.user.screen_name
-					//+ os.EOL + tweet.text
-					+ os.EOL + "https://twitter.com/"
-						+ tweet.user.screen_name
-						+ "/status/"
-						+ tweet.id_str
+					"New by: " + tweet.user.screen_name
+					+ os.EOL + tweet.text
+					+ os.EOL + "<https://twitter.com/"
+					+ tweet.user.screen_name
+					+ "/status/"
+					+ tweet.id_str
+					+ ">"
+					+ mediaURL
 				);
 			}
 		}
