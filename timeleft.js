@@ -4,8 +4,9 @@
 
 const EventEmitter = require('events');
 var fs = require('fs');
-var ds = require('./dsClient.js');
-var tw = require('./twClient.js');
+var ds = require( __dirname + '/dsClient.js');
+var tw = require( __dirname + '/twClient.js');
+var event = require( __dirname + '/json/event.json');
 
 var sharedEmitter = new EventEmitter();
 
@@ -15,7 +16,7 @@ if (process.argv[2] == "l") {
 	console.log("Local Launch detected, starting with alternate config.")
 }
 
-ds.dsStart(sharedEmitter);
+ds.dsStart(sharedEmitter, event);
 tw.twStart(sharedEmitter);
 
 
