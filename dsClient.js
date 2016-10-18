@@ -34,7 +34,7 @@ exports.dsStart = function(emitter,eventInput) {
 				//We wrap the URL in <> so Discord doesn't embed the tweet - it comes out really ugly most of the time.
 				tweetChannel.sendMessage(
 					"	New by: " + tweet.user.screen_name
-					+ os.EOL + "``" + tweet.text + "```"
+					+ os.EOL + "``" + tweet.text + "``"
 					+ os.EOL + "<https://twitter.com/"
 					+ tweet.user.screen_name
 					+ "/status/"
