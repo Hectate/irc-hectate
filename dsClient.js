@@ -1,3 +1,4 @@
+// Author Nathaniel 'Hectate' Mitchell
 "use strict";
 
 require('events');
