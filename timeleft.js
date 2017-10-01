@@ -1,4 +1,5 @@
 /// <reference path=".vscode/node.d.ts" />
+// Author Nathaniel 'Hectate' Mitchell
 
 "use strict";
 
