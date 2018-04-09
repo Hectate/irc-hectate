@@ -6,7 +6,7 @@
 const EventEmitter = require('events');
 var fs = require('fs');
 var ds = require( __dirname + '/dsClient.js');
-var tw = require( __dirname + '/twClient.js');
+//var tw = require( __dirname + '/twClient.js');
 var event = require( __dirname + '/json/event.json');
 
 var sharedEmitter = new EventEmitter();
@@ -18,7 +18,7 @@ if (process.argv[2] == "l") {
 }
 
 ds.dsStart(sharedEmitter, event);
-tw.twStart(sharedEmitter);
+//tw.twStart(sharedEmitter);
 
 
 
